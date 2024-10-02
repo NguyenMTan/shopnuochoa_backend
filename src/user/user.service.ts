@@ -1,6 +1,5 @@
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './model/user.schema';
 import { UserRepository } from './user.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ParamPaginationDto } from './dto/param-pagination.dto';
@@ -39,27 +38,27 @@ export class UserService {
   }
 
   async getOne(id: string) {
-    try {
-      return await this.repository.findOne(id, '-password');
-    } catch (error) {
+    const user = await this.repository.findOne(id, '-password');
+    if (!user) {
       throw new NotFoundException(`Không tìm thấy user id ${id}`);
     }
+    return user;
   }
 
   async updateUser(id: string, updateUser: UpdateUserDto) {
-    try {
-      return await this.repository.updateUser(id, updateUser);
-    } catch (error) {
+    const user = await this.repository.updateUser(id, updateUser);
+    if (!user) {
       throw new NotFoundException(`Không tìm thấy user id ${id}`);
     }
+    return user;
   }
 
   async updateStatusUser(id: string, status: boolean) {
-    try {
-      return await this.repository.updateStatusUser(id, status);
-    } catch (error) {
+    const user = await this.repository.updateStatusUser(id, status);
+    if (!user) {
       throw new NotFoundException('Không tìm thấy user');
     }
+    return user;
   }
 
   async deleteUser(id: string) {
