@@ -53,11 +53,15 @@ export class CategoryService {
   }
 
   async deleteById(id: string) {
-    const category = await this.repository.deleteOne(id);
+    const category = await this.findById(id);
 
-    if (!category) {
-      throw new NotFoundException('không tìm thấy danh mục');
+    if (category.children.length > 0) {
+      throw new UnprocessableEntityException(
+        'không the xoa danh muc co danh muc con',
+      );
     }
+
+    await this.repository.deleteOne(category._id.toHexString());
 
     return category;
   }
@@ -82,17 +86,18 @@ export class CategoryService {
     if (!idValid) {
       throw new UnprocessableEntityException('id khong hop le');
     }
-    const category = await this.repository.updateOne(id, {
+
+    const category = await this.findById(id);
+    if (category.children.length > 0) {
+      throw new UnprocessableEntityException(
+        'Danh muc co danh muc con, không thể thay đổi lại',
+      );
+    }
+    return await this.repository.updateOne(id, category, {
       name,
       status,
       parent_id: checkParent,
     });
-
-    if (!category) {
-      throw new NotFoundException('không tìm thấy danh mục');
-    }
-
-    return category;
   }
 
   async updateStatusById(id: string, status: boolean) {

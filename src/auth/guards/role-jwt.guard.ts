@@ -14,6 +14,10 @@ export class RoleAuthGuard extends JwtAuthGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    // ROLE.ADMIN va ROLE.USER
+
+    // roles_ADMIN
+    // roles_USER
     // Kiem tra co nhung quyen gi
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),
@@ -25,6 +29,7 @@ export class RoleAuthGuard extends JwtAuthGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
+    console.log(user);
     return requiredRoles.some((role) => user.role?.includes(role));
   }
 }
