@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ParamPaginationDto } from './dto/param-pagination.dto';
+import { ParamPaginationDto } from '../common/param-pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class UserService {
   getAll(param: ParamPaginationDto) {
     const { page, limit, sort, keyword } = param;
 
-    const newSort = param.sort !== 'asc' ? 'desc' : 'asc';
+    const newSort = sort !== 'asc' ? 'desc' : 'asc';
 
     const filter =
       keyword !== undefined

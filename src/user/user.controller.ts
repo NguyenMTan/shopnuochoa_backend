@@ -1,3 +1,4 @@
+import { buildPagination } from './../common/common';
 import { UserService } from './user.service';
 import {
   Body,
@@ -11,13 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ParamPaginationDto } from './dto/param-pagination.dto';
-import { User } from './model/user.schema';
+import { ParamPaginationDto } from '../common/param-pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Roles } from 'src/auth/decorator/role.decorator';
 import { Role } from 'src/auth/decorator/role.enum';
 import { RoleAuthGuard } from 'src/auth/guards/role-jwt.guard';
+import { User } from './model/user.schema';
 
 @Controller('users')
 export class UserController {
@@ -36,7 +37,7 @@ export class UserController {
   @Get()
   async getAllUsers(@Query() page: ParamPaginationDto) {
     const listUsers = await this.service.getAll(page);
-    return this.buildPagination(listUsers, page);
+    return buildPagination<User>(listUsers, page);
   }
 
   // Lấy user theo Id
@@ -73,15 +74,5 @@ export class UserController {
     await this.service.deleteUser(_id);
 
     return 'Xoa user thanh cong';
-  }
-
-  private buildPagination(listUsers: User[], param: ParamPaginationDto) {
-    const { page, limit } = param;
-    return {
-      total_items: listUsers.length,
-      total_pages: Math.ceil(listUsers.length / limit),
-      current_page: parseInt(String(page)),
-      entities: listUsers,
-    };
   }
 }

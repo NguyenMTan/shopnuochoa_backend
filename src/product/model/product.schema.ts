@@ -1,33 +1,40 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { SchemaTypes, Types } from 'mongoose';
 
+@Schema()
+export class Image {
+  @Prop({ default: '' })
+  image_id: string;
+
+  @Prop({ default: '' })
+  image_url: string;
+}
+
 @Schema({ versionKey: false })
 export class Product {
   @Prop({ type: SchemaTypes.ObjectId })
   _id: Types.ObjectId;
 
-  @Prop({ default: '' })
+  @Prop({ unique: true })
   name: string;
 
-  @Prop({ default: '' })
+  @Prop()
   description: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Boolean, default: true })
+  status: boolean;
+
+  @Prop({ min: 0 })
   cost: number;
 
-  @Prop({ required: true })
+  @Prop({ min: 0 })
   price: number;
 
-  @Prop({ default: 0 })
+  @Prop({ min: 0 })
   sale: number;
 
-  @Prop({ default: 0 })
+  @Prop({ min: 0 })
   stock: number;
-
-  @Prop({ default: true })
-  status: boolean;
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Category', default: null })
-  category_id: Types.ObjectId;
 
   @Prop({ default: '' })
   image_id: string;
@@ -35,8 +42,11 @@ export class Product {
   @Prop({ default: '' })
   image_url: string;
 
-  @Prop({ type: [Types.ObjectId], ref: 'ProductImage', default: [] })
-  extra_images: Types.ObjectId[];
+  @Prop({ type: [Image], default: [] })
+  images: Image[];
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Category', default: null })
+  category_id: Types.ObjectId;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

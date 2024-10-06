@@ -5,7 +5,9 @@ export class ParamPaginationDto {
 
   limit: number;
 
+  @IsString()
   sort: string;
 
+  @IsString()
   keyword: string;
 }

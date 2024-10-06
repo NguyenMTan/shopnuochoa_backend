@@ -3,10 +3,11 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CategoryRepository } from './category.repository';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { Types } from 'mongoose';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoryRepository } from 'src/category/category.repository';
+import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
+import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
+import { checkValisIsObject } from 'src/common/common';
+import { ParamPaginationDto } from 'src/common/param-pagination.dto';
 
 @Injectable()
 export class CategoryService {
@@ -19,10 +20,7 @@ export class CategoryService {
 
     try {
       if (parent_id !== '') {
-        const idValid = Types.ObjectId.isValid(parent_id);
-        if (!idValid) {
-          throw new UnprocessableEntityException('parent_id khong hop le');
-        }
+        checkValisIsObject(parent_id, 'parent_id');
 
         const parent = await this.repository.findOne(parent_id);
         if (!parent) {
@@ -39,11 +37,16 @@ export class CategoryService {
     }
   }
 
-  findAll() {
-    return this.repository.findAll();
+  findAll(params: ParamPaginationDto) {
+    const { page, limit, sort, keyword } = params;
+
+    const newSort = sort != 'asc' ? 'desc' : 'asc';
+
+    return this.repository.findAll(page, limit, newSort, keyword);
   }
 
   async findById(id: string) {
+    checkValisIsObject(id, 'category id');
     const category = await this.repository.findOne(id);
     if (!category) {
       throw new NotFoundException('không tìm thấy danh mục');
@@ -57,7 +60,7 @@ export class CategoryService {
 
     if (category.children.length > 0) {
       throw new UnprocessableEntityException(
-        'không the xoa danh muc co danh muc con',
+        'Category này vẫn còn danh mục con',
       );
     }
 
@@ -70,41 +73,40 @@ export class CategoryService {
     const { name, status, parent_id } = categoryUpdate;
     const checkParent = parent_id !== '' ? parent_id : null;
 
-    if (parent_id !== '') {
-      const idValid = Types.ObjectId.isValid(parent_id);
-      if (!idValid) {
-        throw new UnprocessableEntityException('parent_id khong hop le');
-      }
-
-      const parent = await this.repository.findOne(parent_id);
-      if (!parent) {
-        throw new NotFoundException('Không tìm thấy category id');
-      }
-    }
-
-    const idValid = Types.ObjectId.isValid(id);
-    if (!idValid) {
-      throw new UnprocessableEntityException('id khong hop le');
-    }
-
     const category = await this.findById(id);
-    if (category.children.length > 0) {
-      throw new UnprocessableEntityException(
-        'Danh muc co danh muc con, không thể thay đổi lại',
-      );
+
+    try {
+      if (parent_id !== '') {
+        checkValisIsObject(parent_id, 'parent_id');
+
+        if (parent_id !== category.parent_id.toHexString()) {
+          const parent = await this.repository.findOne(parent_id);
+          if (!parent) {
+            throw new NotFoundException('Không tìm thấy category id');
+          }
+        }
+      }
+
+      if (category.children.length > 0) {
+        throw new UnprocessableEntityException(
+          'Danh muc co danh muc con, không thể thay đổi lại',
+        );
+      }
+
+      return await this.repository.updateOne(id, category, {
+        name,
+        status,
+        parent_id: checkParent,
+      });
+    } catch (error) {
+      console.log(error.message);
+      throw new UnprocessableEntityException('Tên đã tồn tại');
     }
-    return await this.repository.updateOne(id, category, {
-      name,
-      status,
-      parent_id: checkParent,
-    });
   }
 
   async updateStatusById(id: string, status: boolean) {
-    const idValid = Types.ObjectId.isValid(id);
-    if (!idValid) {
-      throw new UnprocessableEntityException('id này khong hop le');
-    }
+    checkValisIsObject(id, 'category id');
+    checkValisIsObject(id, 'parent_id');
 
     const category = await this.repository.updateStatusById(id, status);
     if (!category) {

@@ -28,9 +28,17 @@ export class CategoryRepository {
     return newCategory;
   }
 
-  async findAll() {
+  async findAll(
+    page: number,
+    limit: number,
+    sort: 'asc' | 'desc',
+    keyword: any,
+  ) {
     return await this.model
-      .find({ parent_id: null })
+      .find(keyword ? { $or: [{ name: new RegExp(keyword, 'i') }] } : {})
+      .skip((page - 1) * limit)
+      .sort({ name: sort })
+      .limit(limit)
       .populate({
         path: 'children',
         populate: {
@@ -38,7 +46,7 @@ export class CategoryRepository {
           populate: { path: 'children', populate: { path: 'children' } },
         },
       })
-      .lean<Category>(true);
+      .lean<Category[]>(true);
   }
 
   async findOne(id: string) {
