@@ -37,15 +37,15 @@ export class Product {
   stock: number;
 
   @Prop({ default: '' })
-  image_id: string;
+  image_id?: string;
 
   @Prop({ default: '' })
-  image_url: string;
+  image_url?: string;
 
   @Prop({ type: [Image], default: [] })
-  images: Image[];
+  images?: Image[];
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Category', default: null })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Category' })
   category_id: Types.ObjectId;
 }
 

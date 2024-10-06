@@ -23,6 +23,36 @@ export class CloudinaryService {
     });
   }
 
+  deleteById(folderId: string): Promise<CloudinaryResponse> {
+    return new Promise((resolve, reject) => {
+      cloudinary.api.delete_resources_by_prefix(
+        folderId,
+        { invalidate: true },
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        },
+      );
+    });
+  }
+
+  deleteFolder(folder: string): Promise<CloudinaryResponse> {
+    return new Promise((resolve, reject) => {
+      cloudinary.api.delete_folder(
+        folder,
+        { invalidate: true },
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        },
+      );
+    });
+  }
+
   deleteImage(publicId: string): Promise<CloudinaryResponse> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, result) => {
