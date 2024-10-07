@@ -13,5 +13,6 @@ import { Customer, CustomerSchema } from './model/customer.schema';
   ],
   controllers: [CustomerController],
   providers: [CustomerService, CustomerRepository],
+  exports: [CustomerRepository],
 })
 export class CustomerModule {}

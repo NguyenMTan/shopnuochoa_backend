@@ -4,5 +4,5 @@ export class TokenPayloadDto {
   _id: string;
   email: string;
   name: string;
-  role: Role[];
+  role?: Role[];
 }

@@ -41,11 +41,19 @@ export class ProductRepository {
     keyword: any,
   ) {
     return await this.model
-      .find(keyword ? { $or: [{ name: new RegExp(keyword, 'i') }] } : {})
+      .find(
+        keyword
+          ? {
+              $or: [
+                { name: new RegExp(keyword, 'i') },
+                { email: new RegExp(keyword, 'i') },
+              ],
+            }
+          : {},
+      )
       .skip((page - 1) * limit)
       .sort({ name: sort })
       .limit(limit)
-      .populate('category_id')
       .lean<Product[]>(true);
   }
 

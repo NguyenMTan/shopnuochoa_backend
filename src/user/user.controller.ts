@@ -33,7 +33,8 @@ export class UserController {
   }
 
   // Lấy tất cả
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
+  @Roles(Role.ADMIN)
   @Get()
   async getAllUsers(@Query() page: ParamPaginationDto) {
     const listUsers = await this.service.getAll(page);
@@ -41,14 +42,15 @@ export class UserController {
   }
 
   // Lấy user theo Id
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
+  @Roles(Role.ADMIN)
   @Get(':id')
   getUserById(@Param('id') _id: string) {
     return this.service.getOne(_id);
   }
 
   // Sửa User
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
   @Roles(Role.ADMIN)
   @Put(':id')
   async updateUser(
@@ -59,7 +61,7 @@ export class UserController {
   }
 
   // Sửa trạng thái User
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
   @Roles(Role.ADMIN)
   @Put(':id/status')
   updateStatusUser(@Param('id') _id: string, @Query('status') status: boolean) {
@@ -67,7 +69,7 @@ export class UserController {
   }
 
   // Xóa User
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
   async deleteUser(@Param('id') _id: string) {
