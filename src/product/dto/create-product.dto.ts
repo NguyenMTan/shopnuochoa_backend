@@ -18,4 +18,5 @@ export class CreateProductDto {
   status: boolean;
 
   category_id: string;
+  brand_id: string;
 }

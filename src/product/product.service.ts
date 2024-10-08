@@ -11,33 +11,53 @@ import { CreateProductDto } from 'src/product/dto/create-product.dto';
 import { Product } from 'src/product/model/product.schema';
 import { ProductRepository } from 'src/product/product.repository';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { BrandRepository } from 'src/brand/brand.repository';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
+    private readonly brandRespository: BrandRepository,
   ) {}
 
   async createProduct(createProduct: CreateProductDto) {
-    let { category_id, ...data } = createProduct;
+    let { category_id, brand_id, ...data } = createProduct;
 
     checkValisIsObject(category_id, 'category_id');
+    checkValisIsObject(brand_id, 'brand_id');
 
     const category = await this.categoryRepository.findOne(category_id);
+    const brand = await this.brandRespository.findOne(brand_id);
 
     if (!category) {
       throw new NotFoundException('Khong tim thay category');
     }
 
+    if (!brand) {
+      throw new NotFoundException('Khong tim thay brand');
+    }
+
     const product = {
       _id: new Types.ObjectId(),
       category_id: Types.ObjectId.createFromHexString(category_id),
+      brand_id: Types.ObjectId.createFromHexString(brand_id),
       ...data,
     };
 
     try {
-      return await this.productRepository.create(product as Product);
+      const newProduct = await this.productRepository.create(
+        product as Product,
+      );
+      await this.brandRespository.addProductId(
+        newProduct.brand_id.toHexString(),
+        newProduct._id.toHexString(),
+      );
+      await this.categoryRepository.addProductId(
+        newProduct.category_id.toHexString(),
+        newProduct._id.toHexString(),
+      );
+      return newProduct;
     } catch (error) {
       throw new UnprocessableEntityException('Ten san pham da ton tai');
     }
@@ -89,18 +109,25 @@ export class ProductService {
   async updateById(id: string, updateProduct: UpdateProductDto) {
     checkValisIsObject(id, 'product id');
     checkValisIsObject(updateProduct.category_id, 'category_id');
+    checkValisIsObject(updateProduct.brand_id, 'brand_id');
 
-    const { category_id, ...data } = updateProduct;
+    const { category_id, brand_id, ...data } = updateProduct;
 
     const category = await this.categoryRepository.findOne(category_id);
+    const brand = await this.brandRespository.findOne(brand_id);
 
     if (!category) {
       throw new NotFoundException('Khong tim thay category');
     }
 
+    if (!brand) {
+      throw new NotFoundException('Khong tim thay brand');
+    }
+
     const product = await this.productRepository.updateOne(id, {
       _id: new Types.ObjectId(id),
       category_id: new Types.ObjectId(category_id),
+      brand_id: new Types.ObjectId(brand_id),
       ...data,
     });
     if (!product) {

@@ -7,12 +7,14 @@ import { Product, ProductSchema } from './model/product.schema';
 
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { CategoryModule } from 'src/category/category.module';
+import { BrandModule } from 'src/brand/brand.module';
 
 @Module({
   imports: [
     DatabaseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     CloudinaryModule,
     CategoryModule,
+    BrandModule,
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],

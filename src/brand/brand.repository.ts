@@ -1,0 +1,49 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Brand } from './model/brand.schema';
+import { Model, Types } from 'mongoose';
+import { CreateBrandDto } from './dto/create-brand.dto';
+
+@Injectable()
+export class BrandRepository {
+  constructor(@InjectModel(Brand.name) private readonly model: Model<Brand>) {}
+
+  async create(brand: CreateBrandDto) {
+    const newBrand = new this.model({
+      _id: new Types.ObjectId(),
+      ...brand,
+    }).save();
+
+    return (await newBrand).toJSON();
+  }
+
+  async findOne(id: string) {
+    return await this.model.findOne({ _id: id }).lean<Brand>(true);
+  }
+
+  async findAll(
+    page: number,
+    limit: number,
+    sort: 'asc' | 'desc',
+    keyword: any,
+  ) {
+    return await this.model
+      .find(keyword)
+      .skip((page - 1) * limit)
+      .sort({ name: sort })
+      .limit(limit)
+      .lean<Brand[]>(true);
+  }
+
+  async deleteOne(id: string) {
+    await this.model.findOneAndDelete({ _id: id });
+    return 'Xóa thương hiệu thành công';
+  }
+
+  async addProductId(id: string, productId: string) {
+    await this.model.findOneAndUpdate(
+      { _id: id },
+      { $addToSet: { products: productId } },
+    );
+  }
+}

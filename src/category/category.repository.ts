@@ -104,4 +104,11 @@ export class CategoryRepository {
       .findOneAndUpdate({ _id: id }, { status }, { new: true })
       .lean<Category>(true);
   }
+
+  async addProductId(id: string, productId: string) {
+    await this.model.findOneAndUpdate(
+      { _id: id },
+      { $addToSet: { products: productId } },
+    );
+  }
 }

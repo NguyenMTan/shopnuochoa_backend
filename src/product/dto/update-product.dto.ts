@@ -7,4 +7,5 @@ export class UpdateProductDto {
   stock: number;
   status: boolean;
   category_id: string;
+  brand_id: string;
 }

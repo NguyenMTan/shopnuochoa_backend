@@ -64,6 +64,10 @@ export class CategoryService {
       );
     }
 
+    if (category.products.length > 0) {
+      throw new UnprocessableEntityException('Category này vẫn còn sản phẩm');
+    }
+
     await this.repository.deleteOne(category._id.toHexString());
 
     return category;

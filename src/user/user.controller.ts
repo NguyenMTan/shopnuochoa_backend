@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ParamPaginationDto } from '../common/param-pagination.dto';
@@ -39,6 +40,13 @@ export class UserController {
   async getAllUsers(@Query() page: ParamPaginationDto) {
     const listUsers = await this.service.getAll(page);
     return buildPagination<User>(listUsers, page);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMe(@Request() req) {
+    const { _id } = req.user;
+    return this.service.getOne(_id);
   }
 
   // Lấy user theo Id
