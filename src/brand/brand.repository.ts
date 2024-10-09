@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Brand } from './model/brand.schema';
 import { Model, Types } from 'mongoose';
 import { CreateBrandDto } from './dto/create-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
 export class BrandRepository {
@@ -45,5 +46,9 @@ export class BrandRepository {
       { _id: id },
       { $addToSet: { products: productId } },
     );
+  }
+
+  async updateOne(id: string, brand: UpdateBrandDto) {
+    return await this.model.findOneAndUpdate({ _id: id }, brand, { new: true });
   }
 }

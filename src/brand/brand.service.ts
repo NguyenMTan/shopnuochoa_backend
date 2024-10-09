@@ -7,6 +7,7 @@ import { BrandRepository } from './brand.repository';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { ParamPaginationDto } from 'src/common/param-pagination.dto';
 import { checkValisIsObject } from 'src/common/common';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
 export class BrandService {
@@ -44,5 +45,10 @@ export class BrandService {
     }
 
     return await this.repository.deleteOne(id);
+  }
+
+  async updateById(id: string, brand: UpdateBrandDto) {
+    checkValisIsObject(id, 'brand_id');
+    return await this.repository.updateOne(id, brand);
   }
 }
