@@ -41,6 +41,10 @@ export class BrandRepository {
     return 'Xóa thương hiệu thành công';
   }
 
+  async updateOne(id: string, brand: UpdateBrandDto) {
+    return await this.model.findOneAndUpdate({ _id: id }, brand, { new: true });
+  }
+
   async addProductId(id: string, productId: string) {
     await this.model.findOneAndUpdate(
       { _id: id },
@@ -48,7 +52,10 @@ export class BrandRepository {
     );
   }
 
-  async updateOne(id: string, brand: UpdateBrandDto) {
-    return await this.model.findOneAndUpdate({ _id: id }, brand, { new: true });
+  async removeProductId(id: Types.ObjectId, productId: Types.ObjectId) {
+    await this.model.findOneAndUpdate(
+      { _id: id },
+      { $pull: { products: productId } },
+    );
   }
 }

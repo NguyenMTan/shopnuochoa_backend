@@ -111,4 +111,11 @@ export class CategoryRepository {
       { $addToSet: { products: productId } },
     );
   }
+
+  async removeProductId(id: Types.ObjectId, productId: Types.ObjectId) {
+    await this.model.findOneAndUpdate(
+      { _id: id },
+      { $pull: { products: productId } },
+    );
+  }
 }

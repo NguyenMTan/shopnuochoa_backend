@@ -84,14 +84,35 @@ export class ProductService {
 
   async deleteById(id: string) {
     checkValisIsObject(id, 'product id');
-
-    const product = await this.productRepository.deleteOne(id);
+    const product = await this.productRepository.findOne(id);
 
     if (!product) {
       throw new NotFoundException('Khong tim thay product');
     }
 
-    return product;
+    try {
+      await this.productRepository.deleteOne(id);
+      await this.brandRespository.removeProductId(
+        product.brand_id,
+        product._id,
+      );
+      await this.categoryRepository.removeProductId(
+        product.category_id,
+        product._id,
+      );
+      return product;
+    } catch (error) {
+      console.log('Error', error);
+      throw new NotFoundException('Loi trong try catch');
+    }
+
+    // const product = await this.productRepository.deleteOne(id);
+
+    // if (!product) {
+    //   throw new NotFoundException('Khong tim thay product');
+    // }
+
+    // return product;
   }
 
   async findById(id: string) {

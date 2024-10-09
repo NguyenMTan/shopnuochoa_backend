@@ -64,7 +64,7 @@ export class ProductRepository {
   async findOne(id: string) {
     return await this.model
       .findOne({ _id: id })
-      .populate('category_id')
+      .populate([{ path: 'category_id' }, { path: 'brand_id' }])
       .lean<Product>(true);
   }
 
