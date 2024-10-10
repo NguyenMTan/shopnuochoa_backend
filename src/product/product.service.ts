@@ -128,14 +128,18 @@ export class ProductService {
   }
 
   async updateById(id: string, updateProduct: UpdateProductDto) {
-    checkValisIsObject(id, 'product id');
-    checkValisIsObject(updateProduct.category_id, 'category_id');
-    checkValisIsObject(updateProduct.brand_id, 'brand_id');
-
     const { category_id, brand_id, ...data } = updateProduct;
+    checkValisIsObject(id, 'product id');
+    checkValisIsObject(category_id, 'category_id');
+    checkValisIsObject(brand_id, 'brand_id');
 
+    const productOld = await this.productRepository.findOne(id);
     const category = await this.categoryRepository.findOne(category_id);
     const brand = await this.brandRespository.findOne(brand_id);
+
+    if (!productOld) {
+      throw new NotFoundException('Khong tim thay product');
+    }
 
     if (!category) {
       throw new NotFoundException('Khong tim thay category');
@@ -145,17 +149,44 @@ export class ProductService {
       throw new NotFoundException('Khong tim thay brand');
     }
 
-    const product = await this.productRepository.updateOne(id, {
-      _id: new Types.ObjectId(id),
-      category_id: new Types.ObjectId(category_id),
-      brand_id: new Types.ObjectId(brand_id),
-      ...data,
-    });
-    if (!product) {
-      throw new NotFoundException('Khong tim thay product');
+    try {
+      const product = await this.productRepository.updateOne(id, {
+        _id: new Types.ObjectId(id),
+        category_id: new Types.ObjectId(category_id),
+        brand_id: new Types.ObjectId(brand_id),
+        ...data,
+      });
+      await this.brandRespository.removeProductId(
+        productOld.brand_id,
+        productOld._id,
+      );
+      await this.brandRespository.addProductId(
+        product.brand_id.toHexString(),
+        product._id.toHexString(),
+      ),
+        await this.categoryRepository.removeProductId(
+          productOld.category_id,
+          productOld._id,
+        ),
+        await this.categoryRepository.addProductId(
+          product.category_id.toHexString(),
+          product._id.toHexString(),
+        );
+
+      return product;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException('Loi try catch');
     }
 
-    return product;
+    // const product = await this.productRepository.updateOne(id, {
+    //   _id: new Types.ObjectId(id),
+    //   category_id: new Types.ObjectId(category_id),
+    //   brand_id: new Types.ObjectId(brand_id),
+    //   ...data,
+    // });
+
+    // return product;
   }
 
   async deleteExtraImages(id: string, image_id: string[]) {

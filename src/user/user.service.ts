@@ -1,12 +1,13 @@
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ParamPaginationDto } from '../common/param-pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from 'src/auth/decorator/role.enum';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(private readonly repository: UserRepository) {}
 
   create(user: CreateUserDto) {
@@ -66,6 +67,23 @@ export class UserService {
       return await this.repository.deleteUser(id);
     } catch (error) {
       throw new NotFoundException(`Không tìm thấy user id ${id}`);
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    const createUserAdmin: CreateUserDto = {
+      email: 'admin@gmail.com',
+      name: 'tan',
+      password: 'Tan123@',
+      status: true,
+      role: [Role.ADMIN],
+    };
+    const initInDB = await this.repository.findByEmail(createUserAdmin.email);
+    if (!initInDB) {
+      await this.repository.create({
+        ...createUserAdmin,
+        password: await bcrypt.hash(createUserAdmin.password, 10),
+      });
     }
   }
 }
