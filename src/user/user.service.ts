@@ -1,7 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ParamPaginationDto } from '../common/param-pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from 'src/auth/decorator/role.enum';
@@ -41,7 +46,7 @@ export class UserService implements OnModuleInit {
   async getOne(id: string) {
     const user = await this.repository.findOne(id, '-password');
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy user id ${id}`);
+      throw new UnauthorizedException(`Không tìm thấy user id ${id}`);
     }
     return user;
   }
@@ -72,9 +77,9 @@ export class UserService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const createUserAdmin: CreateUserDto = {
-      email: 'admin@gmail.com',
-      name: 'tan',
-      password: 'Tan123@',
+      email: 'kewtie@gmail.com',
+      name: 'Kewtie',
+      password: 'Qt123!',
       status: true,
       role: [Role.ADMIN],
     };

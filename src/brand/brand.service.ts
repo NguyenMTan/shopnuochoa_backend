@@ -51,4 +51,8 @@ export class BrandService {
     checkValisIsObject(id, 'brand_id');
     return await this.repository.updateOne(id, brand);
   }
+
+  async findAllGetName() {
+    return await this.repository.findAllGetName();
+  }
 }

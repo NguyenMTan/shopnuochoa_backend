@@ -29,7 +29,6 @@ export class RoleAuthGuard extends JwtAuthGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
-    console.log(user);
     return requiredRoles.some((role) => user.role?.includes(role));
   }
 }

@@ -7,6 +7,11 @@ import { ProductModule } from './product/product.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CustomerModule } from './customer/customer.module';
 import { BrandModule } from './brand/brand.module';
+import { CartModule } from './cart/cart.module';
+import { OrderModule } from './order/order.module';
+import { CheckOutModule } from './checkout/checkout.module';
+import { MailModule } from './mail/mail.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -18,6 +23,11 @@ import { BrandModule } from './brand/brand.module';
     CloudinaryModule,
     CustomerModule,
     BrandModule,
+    CartModule,
+    OrderModule,
+    CheckOutModule,
+    MailModule,
+    ReportModule,
   ],
   controllers: [],
   providers: [],

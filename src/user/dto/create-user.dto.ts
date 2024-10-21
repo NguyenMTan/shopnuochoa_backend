@@ -25,7 +25,8 @@ export class CreateUserDto {
   @IsOptional()
   status: boolean;
 
+  @IsOptional()
   @IsArray()
   @IsEnum(Role, { each: true })
-  role: Role[];
+  role?: Role[];
 }

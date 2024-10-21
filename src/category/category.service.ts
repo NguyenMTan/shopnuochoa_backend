@@ -83,7 +83,10 @@ export class CategoryService {
       if (parent_id !== '') {
         checkValisIsObject(parent_id, 'parent_id');
 
-        if (parent_id !== category.parent_id.toHexString()) {
+        if (
+          category.parent_id &&
+          parent_id !== category.parent_id.toHexString()
+        ) {
           const parent = await this.repository.findOne(parent_id);
           if (!parent) {
             throw new NotFoundException('Không tìm thấy category id');
@@ -118,5 +121,9 @@ export class CategoryService {
     }
 
     return category;
+  }
+
+  async findAllGetName() {
+    return await this.repository.findAllGetName();
   }
 }

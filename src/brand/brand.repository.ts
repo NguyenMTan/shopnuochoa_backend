@@ -58,4 +58,7 @@ export class BrandRepository {
       { $pull: { products: productId } },
     );
   }
+  async findAllGetName() {
+    return await this.model.find().lean<Brand[]>(true);
+  }
 }

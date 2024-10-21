@@ -41,6 +41,11 @@ export class ProductController {
     private readonly productService: ProductService,
   ) {}
 
+  @Get('/c/:id')
+  async getProductByCategory(@Param('id') id: string) {
+    return this.productService.findByCategory(id);
+  }
+
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
   @Roles(Role.ADMIN, Role.USER)
   @Post()
@@ -100,13 +105,10 @@ export class ProductController {
   @Roles(Role.ADMIN, Role.USER)
   @Get()
   async getAll(@Query() params: ParamPaginationDto) {
-    const customers = await this.productService.findAll(params);
-
-    return buildPagination(customers, params);
+    const products = await this.productService.findAll(params);
+    return buildPagination(products, params);
   }
 
-  @UseGuards(JwtAuthGuard, RoleAuthGuard)
-  @Roles(Role.ADMIN, Role.USER)
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.productService.findById(id);
@@ -128,7 +130,7 @@ export class ProductController {
     await this.cloudinaryService.deleteById(`products/${product._id}`);
     // this.cloudinaryService.deleteFolder(`products/${product._id}`);
 
-    return 'Đã xóa product thành công';
+    return id;
   }
 
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
@@ -161,7 +163,7 @@ export class ProductController {
       image_url: result.url,
     });
 
-    return newProduct;
+    return id;
   }
 
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
@@ -176,7 +178,7 @@ export class ProductController {
       this.cloudinaryService.deleteImage(image);
     });
     await this.productService.deleteExtraImages(id, image_ids);
-    return 'Xoá ảnh phụ thành công!';
+    return id;
   }
 
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
@@ -193,19 +195,28 @@ export class ProductController {
     checkExtraFiles(files.extra_images);
     if (!files.extra_images) {
       throw new BadRequestException('Không nhận được file!');
-    } else {
-      files.extra_images.forEach((file) => {
-        this.cloudinaryService
-          .uploadFile(file, 'products/' + id)
-          .then((result) => {
-            this.productService.uploadExtraImages(new Types.ObjectId(id), {
-              image_id: result.public_id,
-              image_url: result.url,
-            });
-          });
-      });
     }
 
-    return 'Đã ảnh phụ cho product này';
+    const uploadPromises = files.extra_images.map(async (file) => {
+      const result = await this.cloudinaryService.uploadFile(
+        file,
+        'products/' + id,
+      );
+      this.productService.uploadExtraImages(new Types.ObjectId(id), {
+        image_id: result.public_id,
+        image_url: result.url,
+      });
+    });
+
+    await Promise.all(uploadPromises);
+
+    return id;
+  }
+
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
+  @Roles(Role.ADMIN, Role.USER)
+  @Put(':id/status')
+  updateStatus(@Param('id') id: string, @Query('status') status: boolean) {
+    return this.productService.updateStatus(id, status);
   }
 }

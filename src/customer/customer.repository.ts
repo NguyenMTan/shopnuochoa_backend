@@ -57,7 +57,32 @@ export class CustomerRepository {
 
   async updatePassword(id: string, password: string) {
     return await this.model
-      .findOneAndUpdate({ _id: id }, { password }, { new: true })
+      .findOneAndUpdate(
+        { _id: id },
+        { password, reset_password_token: '' },
+        { new: true },
+      )
+      .lean<Customer>(true);
+  }
+  async randomResetPassword(id: Types.ObjectId, token: string) {
+    return await this.model
+      .findOneAndUpdate(
+        { _id: id },
+        { reset_password_token: token },
+        { new: true },
+      )
+      .lean<Customer>(true);
+  }
+
+  async resetPassword(token: string) {
+    return await this.model
+      .findOne({ reset_password_token: token })
+      .lean<Customer>(true);
+  }
+
+  async updateStatusById(id: string, status: boolean) {
+    return await this.model
+      .findOneAndUpdate({ _id: id }, { status }, { new: true })
       .lean<Customer>(true);
   }
 }

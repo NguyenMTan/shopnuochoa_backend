@@ -24,6 +24,11 @@ import { RoleAuthGuard } from 'src/auth/guards/role-jwt.guard';
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 
+  @Get('/all')
+  getAllGetName() {
+    return this.service.findAllGetName();
+  }
+
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
   @Roles(Role.ADMIN, Role.USER)
   @Post()
@@ -31,8 +36,6 @@ export class CategoryController {
     return this.service.createCategory(category);
   }
 
-  @UseGuards(JwtAuthGuard, RoleAuthGuard)
-  @Roles(Role.ADMIN, Role.USER)
   @Get()
   async getAll(@Query() params: ParamPaginationDto) {
     const categories = await this.service.findAll(params);

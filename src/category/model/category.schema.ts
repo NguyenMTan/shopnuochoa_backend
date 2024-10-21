@@ -6,7 +6,7 @@ export class Category {
   @Prop({ type: SchemaTypes.ObjectId })
   _id: Types.ObjectId;
 
-  @Prop({ unique: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ default: true })

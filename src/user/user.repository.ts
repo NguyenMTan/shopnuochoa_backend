@@ -34,7 +34,10 @@ export class UserRepository {
   }
 
   async findOne(id: string, select: string) {
-    return await this.model.findById(id).select(select).lean<User>(true);
+    return await this.model
+      .findOne({ _id: id })
+      .select(select)
+      .lean<User>(true);
   }
 
   async updateUser(id: string, updateUser: UpdateUserDto) {
