@@ -12,6 +12,8 @@ import { OrderModule } from './order/order.module';
 import { CheckOutModule } from './checkout/checkout.module';
 import { MailModule } from './mail/mail.module';
 import { ReportModule } from './report/report.module';
+import { BlogModule } from './blog/blog.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { ReportModule } from './report/report.module';
     CheckOutModule,
     MailModule,
     ReportModule,
+    BlogModule,
+    ReviewModule,
   ],
   controllers: [],
   providers: [],

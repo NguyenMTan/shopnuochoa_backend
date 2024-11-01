@@ -55,4 +55,15 @@ export class BrandService {
   async findAllGetName() {
     return await this.repository.findAllGetName();
   }
+
+  async updateStatusById(id: string, status: boolean) {
+    checkValisIsObject(id, 'brand_id');
+
+    const brand = await this.repository.updateStatusById(id, status);
+    if (!brand) {
+      throw new NotFoundException('không tìm thấy id danh mục');
+    }
+
+    return brand;
+  }
 }

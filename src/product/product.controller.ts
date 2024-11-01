@@ -33,6 +33,7 @@ import { Roles } from 'src/auth/decorator/role.decorator';
 import { Role } from 'src/auth/decorator/role.enum';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RoleAuthGuard } from 'src/auth/guards/role-jwt.guard';
+import { ParamProductDto } from './dto/param-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -41,9 +42,9 @@ export class ProductController {
     private readonly productService: ProductService,
   ) {}
 
-  @Get('/c/:id')
-  async getProductByCategory(@Param('id') id: string) {
-    return this.productService.findByCategory(id);
+  @Get('/cb')
+  async getProductByCategory(@Query() params: ParamProductDto) {
+    return this.productService.findByCategory(params);
   }
 
   @UseGuards(JwtAuthGuard, RoleAuthGuard)
@@ -101,8 +102,6 @@ export class ProductController {
     return 'Đã tạo product thành công ';
   }
 
-  @UseGuards(JwtAuthGuard, RoleAuthGuard)
-  @Roles(Role.ADMIN, Role.USER)
   @Get()
   async getAll(@Query() params: ParamPaginationDto) {
     const products = await this.productService.findAll(params);

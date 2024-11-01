@@ -65,4 +65,11 @@ export class OrderService {
   findByCustomer(customer_id: string) {
     return this.orderRepository.findByCustomer(customer_id);
   }
+
+  findByCustomerAndProduct(customer_id: string, product_id: string) {
+    return this.orderRepository.findByCustomerAndProduct(
+      customer_id,
+      product_id,
+    );
+  }
 }

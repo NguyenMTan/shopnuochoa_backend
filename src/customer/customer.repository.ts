@@ -85,4 +85,13 @@ export class CustomerRepository {
       .findOneAndUpdate({ _id: id }, { status }, { new: true })
       .lean<Customer>(true);
   }
+
+  async uploadMainFile(
+    id: Types.ObjectId,
+    { image_id, image_url }: { image_id: string; image_url: string },
+  ) {
+    return await this.model
+      .findOneAndUpdate({ _id: id }, { image_id, image_url }, { new: true })
+      .lean<Customer>(true);
+  }
 }

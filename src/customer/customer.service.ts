@@ -12,6 +12,7 @@ import { checkValisIsObject } from 'src/common/common';
 import { ParamPaginationDto } from 'src/common/param-pagination.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { MailService } from 'src/mail/mail.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CustomerService {
@@ -113,5 +114,9 @@ export class CustomerService {
     }
 
     return customer;
+  }
+
+  uploadMainImage(id: Types.ObjectId, { image_id, image_url }) {
+    return this.repository.uploadMainFile(id, { image_id, image_url });
   }
 }

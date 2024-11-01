@@ -1,3 +1,4 @@
+import { CloudinaryModule } from './../cloudinary/cloudinary.module';
 import { CustomerRepository } from './customer.repository';
 import { Module } from '@nestjs/common';
 import { CustomerController } from './customer.controller';
@@ -12,6 +13,7 @@ import { MailModule } from 'src/mail/mail.module';
       { name: Customer.name, schema: CustomerSchema },
     ]),
     MailModule,
+    CloudinaryModule,
   ],
   controllers: [CustomerController],
   providers: [CustomerService, CustomerRepository],

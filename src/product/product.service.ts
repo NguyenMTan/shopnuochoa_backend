@@ -12,6 +12,7 @@ import { Product } from 'src/product/model/product.schema';
 import { ProductRepository } from 'src/product/product.repository';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BrandRepository } from 'src/brand/brand.repository';
+import { ParamProductDto } from './dto/param-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -213,18 +214,38 @@ export class ProductService {
     return product;
   }
 
-  async findByCategory(category_id: string) {
-    if (category_id === 'all') {
-      return await this.productRepository.findAll(1, 1000, 'asc', '');
-    }
-    const category = await this.categoryRepository.findOne(category_id);
+  async findByCategory(body: ParamProductDto) {
+    const { brand_id, category_id, keyword } = body;
 
+    if (category_id === 'all' && brand_id === 'all') {
+      return await this.productRepository.findAll(1, 1000, 'asc', keyword);
+    }
+
+    if (category_id === 'all') {
+      const query: any = {
+        $or: [{ name: new RegExp(keyword, 'i') }],
+      };
+      if (brand_id !== 'all') {
+        query.brand_id = brand_id;
+      }
+      return await this.productRepository.findByCategory(query);
+    }
+
+    const category = await this.categoryRepository.findOne(category_id);
     let listProducts: Product[] = [];
-    const products = await this.productRepository.findByCategory({
+
+    const query: any = {
       category_id,
-    });
+      $or: [{ name: new RegExp(keyword, 'i') }],
+    };
+    if (brand_id !== 'all') {
+      query.brand_id = brand_id;
+    }
+
+    const products = await this.productRepository.findByCategory(query);
     listProducts.push(...products);
-    await this.hierarchical(listProducts, category, category_id);
+
+    await this.hierarchical(listProducts, category, brand_id, keyword);
 
     return listProducts;
   }
@@ -232,16 +253,23 @@ export class ProductService {
   private async hierarchical(
     listProducts: Product[],
     category: any,
-    category_id: string,
+    brand_id: string,
+    keyword: string,
   ) {
     if (category.children.length > 0) {
       for (const child of category.children) {
-        const products = await this.productRepository.findByCategory({
+        const query: any = {
           category_id: child._id,
-        });
+          $or: [{ name: new RegExp(keyword, 'i') }],
+        };
+        if (brand_id !== 'all') {
+          query.brand_id = brand_id;
+        }
+
+        const products = await this.productRepository.findByCategory(query);
         listProducts.push(...products);
 
-        await this.hierarchical(listProducts, child, category_id);
+        await this.hierarchical(listProducts, child, brand_id, keyword);
       }
     }
   }

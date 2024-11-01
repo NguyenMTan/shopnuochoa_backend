@@ -8,21 +8,29 @@ import {
   Query,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { CustomerService } from './customer.service';
 import { ParamPaginationDto } from 'src/common/param-pagination.dto';
-import { buildPagination } from 'src/common/common';
+import { buildPagination, checkMainFile } from 'src/common/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { RoleAuthGuard } from 'src/auth/guards/role-jwt.guard';
 import { Roles } from 'src/auth/decorator/role.decorator';
 import { Role } from 'src/auth/decorator/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('customers')
 export class CustomerController {
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(
+    private readonly customerService: CustomerService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post('register')
   register(@Body() customer: CreateCustomerDto) {
@@ -85,5 +93,67 @@ export class CustomerController {
   @Put(':id/status')
   updateStatus(@Param('id') id: string, @Query('status') status: boolean) {
     return this.customerService.updateStatus(id, status);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/add_main_image')
+  @UseInterceptors(FileInterceptor('main_image'))
+  async addImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    checkMainFile(file);
+
+    if (!file) {
+      throw new BadRequestException('Không nhận được file!');
+    }
+
+    const customer = await this.customerService.findById(id);
+
+    this.cloudinaryService
+      .uploadFile(file, 'customer/' + customer._id)
+      .then((result) => {
+        this.customerService.uploadMainImage(customer._id, {
+          image_id: result.public_id,
+          image_url: result.url,
+        });
+      })
+      .catch((error) => {
+        throw new BadRequestException(error);
+      });
+  }
+
+  @Put(':id/update_main_image')
+  @UseInterceptors(FileInterceptor('main_image'))
+  async updateImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    checkMainFile(file);
+
+    if (!file) {
+      throw new BadRequestException('Không nhận được file!');
+    }
+
+    const customer = await this.customerService.findById(id);
+
+    const result = await this.cloudinaryService.uploadFile(
+      file,
+      'products/' + customer._id,
+    );
+
+    if (customer.image_id) {
+      await this.cloudinaryService.deleteImage(customer.image_id);
+    }
+
+    const newProduct = await this.customerService.uploadMainImage(
+      customer._id,
+      {
+        image_id: result.public_id,
+        image_url: result.url,
+      },
+    );
+
+    return id;
   }
 }

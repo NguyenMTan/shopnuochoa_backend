@@ -1,5 +1,6 @@
 export class UpdateProductDto {
   name: string;
+  short_description: string;
   description: string;
   cost: number;
   price: number;

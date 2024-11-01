@@ -64,4 +64,11 @@ export class BrandController {
   update(@Param('id') _id: string, @Body() body: UpdateBrandDto) {
     return this.service.updateById(_id, body);
   }
+
+  @UseGuards(JwtAuthGuard, RoleAuthGuard)
+  @Roles(Role.ADMIN, Role.USER)
+  @Put(':id/status')
+  updateStatus(@Param('id') id: string, @Query('status') status: boolean) {
+    return this.service.updateStatusById(id, status);
+  }
 }

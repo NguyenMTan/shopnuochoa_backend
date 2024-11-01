@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Customer } from 'src/customer/model/customer.schema';
 import { Order } from 'src/order/model/order.schema';
 import Handlebars from 'handlebars';
+import { FeedbackDto } from './dto/feedback.dto';
 
 @Injectable()
 export class MailService {
@@ -61,6 +62,21 @@ export class MailService {
         email: email,
         url: url,
         image: image,
+      },
+    });
+  }
+
+  async feedBack(feedback: FeedbackDto) {
+    await this.mailerService.sendMail({
+      to: feedback.email,
+      from: 'minhtanvx510@gmail.com',
+      subject: 'Phản hồi khách hàng',
+      template: 'feedback',
+      context: {
+        email: feedback.email,
+        phone_number: feedback.phone_number,
+        name: feedback.name,
+        message: feedback.message,
       },
     });
   }

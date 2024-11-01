@@ -9,6 +9,9 @@ export class Brand {
   @Prop({ unique: true })
   name: string;
 
+  @Prop({ default: true })
+  status: boolean;
+
   @Prop({ default: null })
   description: string;
 

@@ -59,6 +59,12 @@ export class BrandRepository {
     );
   }
   async findAllGetName() {
-    return await this.model.find().lean<Brand[]>(true);
+    return await this.model.find({ status: true }).lean<Brand[]>(true);
+  }
+
+  async updateStatusById(id: string, status: boolean) {
+    return await this.model
+      .findOneAndUpdate({ _id: id }, { status }, { new: true })
+      .lean<Brand>(true);
   }
 }

@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './model/order.schema';
 import { OrderDetail } from './model/order-detail.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Customer } from 'src/customer/model/customer.schema';
+import path from 'path';
 
 @Injectable()
 export class OrderRepository {
@@ -72,7 +73,10 @@ export class OrderRepository {
   }
 
   async findByCustomer(customer_id: string) {
-    return await this.orderModel.find({ customer_id }).lean<Order[]>(true);
+    return await this.orderModel
+      .find({ customer_id })
+      .populate('order_detail')
+      .lean<Order[]>(true);
   }
 
   async getLastOptionDays(startDate: Date, endDate: Date) {
@@ -80,5 +84,18 @@ export class OrderRepository {
       .find({ created_at: { $gte: startDate, $lt: endDate } })
       .sort({ created_at: 1 })
       .lean<Order[]>(true);
+  }
+
+  async findByCustomerAndProduct(customer_id: string, product_id: string) {
+    const orders = await this.orderModel
+      .find({ customer_id })
+      .populate({ path: 'order_detail', match: { product_id } })
+      .lean<Order[]>(true);
+
+    const filteredOrders = orders.filter(
+      (order) => order.order_detail.length > 0,
+    );
+
+    return filteredOrders;
   }
 }

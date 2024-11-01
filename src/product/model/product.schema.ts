@@ -19,6 +19,9 @@ export class Product {
   name: string;
 
   @Prop()
+  short_description: string;
+
+  @Prop()
   description: string;
 
   @Prop({ type: Boolean, default: true })

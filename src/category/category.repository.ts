@@ -120,6 +120,6 @@ export class CategoryRepository {
   }
 
   async findAllGetName() {
-    return await this.model.find().lean<Category[]>(true);
+    return await this.model.find({ status: true }).lean<Category[]>(true);
   }
 }
